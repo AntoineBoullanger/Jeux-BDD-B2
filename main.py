@@ -24,7 +24,7 @@
 
 # Diriger en fonction du choix
     # Si égal à 1
-        # Lancer le jeu
+        # Lancer la partie
     # Elif égal à 2
         # Voir le classement
     # Sinon
