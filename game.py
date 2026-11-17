@@ -1,13 +1,13 @@
 # Lancer la partie
     # Creation variable manche
     # Demander l'équipe
-    # Tant que l'equipe est vivant
-        # Affichage Manche
+    # Tant equipe vivant
         # Incrémentation de 1 la variable manche
-        # Creation de l'ennemis
+        # Affichage Manche
         # Lancer la manche
+    # Afficher le résultat
+    # Enregistrer le résultat dans la bdd
 
-    
 # Demander l'équipe
     # Création de l'équipe
     # Tant que l'équipe est inf à 3
@@ -34,7 +34,7 @@
     # Pour index, option in enumerees personnage
         # Afficher index + option
         
-# Nombre valide parmis les options
+# personnage valide parmis les options
     # Si le choix n'est un nombre
         # Retourne Faux
     # Si le choix n'est compris entre le min et max
@@ -44,7 +44,7 @@
     # Retourne Vrai
     
 # Choix deja choisi
-    # Si personnage dans equipe
+    # Si  nom du personnage dans equipe
         # Retourne Vrai
     # Retourne Faux
 
@@ -54,15 +54,35 @@
             # Retourne True
     # Retourne Faux
 
+# Lancer la manche
+    # Creation de l'ennemis
+    # Tant que equipe vivant
+        # Attaque du Joueur
+        # Si pas equipe vivant (ennemis)
+            # break
+        # Attaque Ennemis
+
 # Creation de l'ennemis
     # Liste personnage (ennemis)
     # Retourne l'ennemis au hasard
     
-# Lancer la manche
-    # Attaque du Joueur
-    # Si pas equipe vivant (ennemis)
-        # break
-    # Attaque Ennemis
-    # Si pas equipe vivant (joueur)
-        # break
+# Attaque Joueur
+    # Pour joueur dans l'équipe
+        # Attaque le joueur
         
+# Attaque le joueur
+    # Si vivant
+        # Compter les dégats
+        # Enlever dégat à l'ennemis
+        # Afficher les dégats
+        
+# vivant
+    # Si pv supérieur à 0
+        # retourne True
+    # Retourne False
+        
+# Attaque Ennemis
+    # Choisir un joueur au hasard parmis ce qui sont en vis
+    # Compter les dégats
+    # Afficher les dégats
+    
