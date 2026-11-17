@@ -1,6 +1,6 @@
 # Lancer la partie
     # Creation variable manche
-    # Demander l'équipe
+    # Creer l'équipe
     # Tant equipe vivant
         # Incrémentation de 1 la variable manche
         # Affichage Manche
@@ -8,12 +8,13 @@
     # Afficher le résultat
     # Enregistrer le résultat dans la bdd
 
-# Demander l'équipe
-    # Création de l'équipe
-    # Tant que l'équipe est inf à 3
+# Creer l'équipe
+    # Création de la liste équipe
+    # Tant que taille de l'équipe est pas pleine
         # Afficher l'équipe
         # Demander un personnage
         # Ajouter le personnage à l'equipe
+        # Supp le personnage de la liste de choix
     # Retourne l'équipe
 
 # Afficher l'équipe
@@ -24,7 +25,7 @@
     # Tant que vrai
         # Afficher les options
         # Demander un choix
-        # Si personnage est valide parmi les options
+        # Si choix est valide parmi les options
             # Retourne le nombre
         # Sinon 
             # Afficher message erreur
@@ -33,15 +34,6 @@
     # Liste des personnages (allié)
     # Pour index, option in enumerees personnage
         # Afficher index + option
-        
-# personnage valide parmis les options
-    # Si le choix n'est un nombre
-        # Retourne Faux
-    # Si le choix n'est compris entre le min et max
-        # Retourne Faux
-    # Si le choix est dèjà choisi
-        # Retourne Faux
-    # Retourne Vrai
     
 # Choix deja choisi
     # Si  nom du personnage dans equipe
@@ -71,16 +63,24 @@
         # Attaque le joueur
         
 # Attaque le joueur
-    # Si vivant
-        # Compter les dégats
-        # Enlever dégat à l'ennemis
-        # Afficher les dégats
+    # Si sup à 0
+        # Enlever dégat 
         
-# vivant
+        
+# sup à n
     # Si pv supérieur à 0
         # retourne True
     # Retourne False
-        
+    
+# Enlever dégat 
+    # Compter les dégats
+    # Afficher les dégats
+    # Si sup à pv - deg
+        # pv =- deg
+    # Sinon
+        # pv = 0
+    
+
 # Attaque Ennemis
     # Choisir un joueur au hasard parmis ce qui sont en vis
     # Compter les dégats

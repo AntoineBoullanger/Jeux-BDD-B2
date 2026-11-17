@@ -2,8 +2,8 @@
     # Demander le pseudo
     # tant que vrai
         # Demander un choix valide
-        # Si diriger en fonction du choix égal Faux
-            # Break
+        # Rediriger en fonction du choix 
+
 
 # Demander le pseudo
     # Tant que vrai
@@ -23,7 +23,7 @@
     # Tant que vrai
         # Afficher les options
         # Demander un choix
-        # Si nombre est valide parmi les options
+        # Si choix est valide parmi les options
             # Retourne le nombre
         # Afficher message erreur
     
@@ -31,11 +31,11 @@
     # Pour index, option in enumerees options
         # Afficher index + option
         
-# Nombre valide parmis les options
-    # Si le choix n'est un nombre
+# Choix valide parmis les options
+    # Si le choix n'est pas un nombre
         # Retourne Faux
     # Convertir en entier
-    # Si le choix n'est compris entre le min et max
+    # Si l'entier n'est compris entre le min et max
         # Retourne Faux
     # Retourne Vrai
 
@@ -45,7 +45,7 @@
     # Elif égal à 2
         # Voir le classement
     # Sinon
-        # Quitter
+        # Quitter le code
         
 # Voir le classement
     # Chercher la liste avec pseudo + résultat
