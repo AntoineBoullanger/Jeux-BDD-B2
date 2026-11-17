@@ -1,6 +1,11 @@
+MAX_CHARACTERS = 3
+
 # Lancer la partie
+def game_start(pseudo):
     # Creation variable manche
+    round = 0
     # Creer l'équipe
+    team = create_team()
     # Tant equipe vivant
         # Incrémentation de 1 la variable manche
         # Affichage Manche
@@ -9,17 +14,24 @@
     # Enregistrer le résultat dans la bdd
 
 # Creer l'équipe
+def create_team():
     # Création de la liste équipe
+    list_team = []
     # Tant que taille de l'équipe est pas pleine
+    while len(list_team) < MAX_CHARACTERS:
         # Afficher l'équipe
+        show_team(list_team)
         # Demander un personnage
         # Ajouter le personnage à l'equipe
         # Supp le personnage de la liste de choix
     # Retourne l'équipe
 
 # Afficher l'équipe
+def show_team(list_team):
     # Pour index, personnage dans enumerate l'équipe
+    for index, character in enumerate(list_team):
         # Afficher index + personnage
+        print(f"{index+1}- {character["name"]} --- {character["ATK"]} - {character["DEF"]} - {character["PV"]} ")
 
 # Demander un personnage
     # Tant que vrai
@@ -85,4 +97,3 @@
     # Choisir un joueur au hasard parmis ce qui sont en vis
     # Compter les dégats
     # Afficher les dégats
-    
