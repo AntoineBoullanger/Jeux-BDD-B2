@@ -47,33 +47,19 @@ def ask_valid_choice():
         # Demander un choix
         choice = input("Qu'est ce que tu veux faire ? (1,2 ou 3)")
         # Si choix est valide parmi les options
-        if is_choice_valid(choice, len(options)):
+        if game.is_choice_valid(choice, len(options)):
             # Retourne le nombre
             return choice
         # Afficher message erreur
         print("Le choix n'est pas bon, vérifie")
-    
+        
 # Afficher les options
 def show_options(options):
     # Pour index, option in enumerees options
     for index, option in enumerate(options, start=1):
         # Afficher index + option
         print(f"{index}- {option}")
-        
-# Choix valide parmis les options
-def is_choice_valid(choice, maximum):
-    # Si le choix n'est pas un nombre
-    if choice.isdigit():
-        # Retourne Faux
-        return False
-    # Convertir en entier
-    choice = int(choice)
-    # Si l'entier n'est compris entre le min et max
-    if choice <= 1 or choice >= maximum:
-        # Retourne Faux
-        return False
-    # Retourne Vrai
-    return True
+
 
 # Diriger en fonction du choix
 def redirection_choice(choice, pseudo):
@@ -84,21 +70,10 @@ def redirection_choice(choice, pseudo):
     # Elif égal à 2
     elif choice == "2":
         # Voir le classement
-        show_ranking()
+        game.show_ranking()
     # Sinon
     else:
         # Quitter le code
         sys.exit()
         
-# Voir le classement
-    # Chercher la liste avec pseudo + résultat
-    # Pour index 10 fois
-        # Chercher le plus au score dans la liste
-        # Afficher le plus au score index+1 + pseudo + score
-    
-# Chercher le plus au score dans la liste
-    # Creation du dic avec pseudo + score
-    # Pour dic dans la liste
-        # Trouver le max de la liste du dic
-        # Si max de la liste supérieur à score
-            # Remplacer le pseudo et le score
+

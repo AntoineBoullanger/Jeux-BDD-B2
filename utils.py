@@ -14,14 +14,24 @@ def add_pseudo_bdd(pseudo):
     db["users"].insert_one({"name" : pseudo, "score" : []})
     
 # Liste des personnage
+def list_characters(name):
     # Retourne liste des personnage
-    
+    return list(db[name].find({}, { "_id": 0}))
+
+  
 
     
 # Enregistrer le résultat dans la bdd
+def save_result(pseudo, result):
     # Aller chercher la liste de résultat
+    list_score = db["users"].find_one({"name" : pseudo},{"_id" : 0,"score" : 1})["score"]
     # Ajouter le résulter à la liste
+    list_score.append(result)
+    # Trier la liste dans l'ordre décorissant
+    list_score_max_to_min = sorted(list_score, reverse=True)
     # Mettre sur la bdd
+    db["users"].update_one({"name": pseudo}, {"$set": {"score": list_score_max_to_min}})
     
 # Chercher la liste avec pseudo + résultat
     # Retourne liste de pseudo + résultat
+    
