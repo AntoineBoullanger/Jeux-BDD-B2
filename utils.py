@@ -19,8 +19,6 @@ def list_characters(name):
     return list(db[name].find({}, { "_id": 0}))
 
   
-
-    
 # Enregistrer le résultat dans la bdd
 def save_result(pseudo, result):
     # Aller chercher la liste de résultat
@@ -33,5 +31,8 @@ def save_result(pseudo, result):
     db["users"].update_one({"name": pseudo}, {"$set": {"score": list_score_max_to_min}})
     
 # Chercher la liste avec pseudo + résultat
+def recup_score_result():
     # Retourne liste de pseudo + résultat
+    return list(db["users"].find({},{"_id" : 0}))
+    
     

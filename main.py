@@ -7,7 +7,7 @@ def menu():
     # tant que vrai
     while True:
         # Demander un choix valide
-        choice = ask_valid_choice()
+        choice = game.ask_valid_choice(["Lancer la partie","Voir le classement","Quitter"])
         # Rediriger en fonction du choix 
         redirection_choice(choice, pseudo)
         
@@ -34,41 +34,16 @@ def pseudo_use(pseudo):
         # Retourne Faux
         return False
     # Retourne True
-    return True
-
-# Demander un choix valide
-def ask_valid_choice():
-    # Tant que vrai
-    while True:
-        # Creation des option
-        options = ["Lancer la partie","Voir le classement","Quitter"]
-        # Afficher les options
-        show_options(options)
-        # Demander un choix
-        choice = input("Qu'est ce que tu veux faire ? (1,2 ou 3)")
-        # Si choix est valide parmi les options
-        if game.is_choice_valid(choice, len(options)):
-            # Retourne le nombre
-            return choice
-        # Afficher message erreur
-        print("Le choix n'est pas bon, vérifie")
-        
-# Afficher les options
-def show_options(options):
-    # Pour index, option in enumerees options
-    for index, option in enumerate(options, start=1):
-        # Afficher index + option
-        print(f"{index}- {option}")
-
+    return True      
 
 # Diriger en fonction du choix
 def redirection_choice(choice, pseudo):
     # Si égal à 1
-    if choice == "1":
+    if choice == 1:
         # Lancer la partie
         game.game_start(pseudo)
     # Elif égal à 2
-    elif choice == "2":
+    elif choice == 2:
         # Voir le classement
         game.show_ranking()
     # Sinon
@@ -76,4 +51,5 @@ def redirection_choice(choice, pseudo):
         # Quitter le code
         sys.exit()
         
+menu()
 
