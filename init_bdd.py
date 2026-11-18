@@ -7,13 +7,6 @@ characters = db["characters"]
 enemies = db["enemies"]
 users = db["users"]
 
-list_users = {
-    "name" : 
-        "Antoine"
-    ,"score" : 
-        [3,5,8]
-}
-
 list_characters = {
     "name": [
         "Clovis Ier",
@@ -27,30 +20,28 @@ list_characters = {
         "Henri IV",
         "Louis XIV"
     ],
-    "ATK": [18, 22, 20, 17, 19, 16, 21, 23, 20, 25],
-    "DEF": [15, 18, 16, 20, 17, 14, 15, 13, 18, 19],
-    "PV": [120, 130, 115, 140, 110, 105, 110, 120, 130, 150]
+    "ATK": [18, 22, 20, 16, 19, 17, 21, 23, 20, 24],
+    "DEF": [17, 19, 18, 22, 19, 16, 17, 15, 20, 21],
+    "PV": [120, 140, 125, 150, 120, 110, 115, 125, 135, 145]
 }
 
 list_enemies = {
     "name": [
         "Empire romain",
         "Angleterre",
-        "Espagne",
         "Saint-Empire romain germanique",
-        "Autriche",
+        "Allemagne",
         "Prusse",
-        "Bourgogne",
-        "Empire ottoman",
+        "Autriche",
+        "Espagne",
         "Russie",
-        "Allemagne"
+        "Empire ottoman",
+        "Bourgogne"
     ],
-    "ATK": [10, 20, 35, 12, 25, 18, 30, 22, 28, 15],
-    "DEF": [5, 8, 20, 6, 15, 10, 25, 12, 18, 7],
-    "PV": [50, 120, 300, 70, 200, 100, 250, 150, 180, 90]
+    "ATK": [10, 13, 15, 17, 18, 20, 22, 23, 25, 27],
+    "DEF": [5, 7, 10, 11, 12, 14, 15, 16, 18, 20],
+    "PV": [55, 70, 85, 95, 105, 115, 125, 135, 145, 160]
 }
-
-users.insert_one(list_users)
 
 for i in range(len(list_characters["name"])):
     characters.insert_one({"name" : list_characters["name"][i], "ATK": list_characters["ATK"][i], "DEF" : list_characters["DEF"][i], "PV": list_characters["PV"][i]})

@@ -9,7 +9,7 @@ def game_start(pseudo):
     # Creer l'équipe
     team = create_team()
     # Tant equipe vivant
-    while team_alive(team):
+    while is_team_alive(team):
         # Incrémentation de 1 la variable manche
         round += 1
         # Affichage Manche
@@ -19,14 +19,14 @@ def game_start(pseudo):
         # Lancer la manche
         start_round(team, enemie)
     # Afficher le résultat
-    print(f"Résultat : Manche - {round} ")
+    show_round(round)
     # Enregistrer le résultat dans la bdd
-    # utils.save_result(pseudo, round)
+    utils.save_result(pseudo, round)
     
 def show_round(round):
     print("")
     print("-"*30)
-    print(f"Manche - {round}")
+    print(f"Manche {round}")
     print("-"*30)
 
 # Creer l'équipe
@@ -40,7 +40,7 @@ def create_team():
         # Afficher l'équipe
         show_options([f"{character["name"]} --- {character["ATK"]} - {character["DEF"]} - {character["PV"]} PV" for character in list_team])
         # Demander un personnage
-        character = ask_valid_choice(list_characters)
+        character = ask_valid_choice([f"{character["name"]} --- {character["ATK"]} ATK -- {character["DEF"]} DEF - {character["PV"]} PV"for character in list_characters])
         # Ajouter le personnage à l'equipe
         list_team.append(list_characters[character-1])
         # Supp le personnage de la liste de choix
@@ -61,7 +61,7 @@ def ask_valid_choice(list_of_option):
     # Tant que vrai
     while True:
         # Afficher les options
-        show_options([f"{character["name"]} --- {character["ATK"]} - {character["DEF"]} - {character["PV"]} PV" for character in list_of_option])
+        show_options( list_of_option)
         # Demander un choix
         choice = input("Qu'est ce que tu veux faire ? (1,2 ou 3) ")
         # Si choix est valide parmi les options
@@ -87,7 +87,7 @@ def is_choice_valid(choice, maximum):
     return True
             
 # équipe vivant ?
-def team_alive(team):
+def is_team_alive(team):
     # Pour personnage dans equipe
     for character in team:
         # Si PV personnage supérieur à 0
@@ -101,32 +101,39 @@ def team_alive(team):
 def start_round(team, enemies):
     laps= 0
     # Tant que equipe vivant
-    while team_alive(team):
+    while is_team_alive(team):
         # Incrémenter le nombre de round
         laps += 1
         # Attaque du Joueur team
         action_damage = team_player_attack(team, enemies)
-        # Affichier le texte
+        # Affichier de l'execution de team_player_attack
         show_text(action_damage,team,laps,1)
         # Si pas equipe vivant (ennemis)
-        if not team_alive(enemies):
+        if not is_team_alive(enemies):
             # break
             break
         # Attaque Ennemis
         action_damage = team_player_attack(enemies,team)
+        # Affichier de l'execution de team_player_attack 
         show_text(action_damage,enemies,laps,2)
         
 def show_text(action_damage, team,laps, n):
     # Afficher le round
     show_laps(laps, n)
     # Afficher l'équipe
-    show_options([f"{character["name"]} --- {character["PV"]} PV" for character in team])
+    show_text_fight([f"{character["name"]} --- {character["PV"]} PV" for character in team])
     # Afficher les dégats
-    show_options(action_damage)
+    show_text_fight(action_damage)
+    
+def show_text_fight(liste):
+    for texte in liste:
+        print(texte)
+    print("")
 
 def show_laps(laps,n):
-    print(f"{10*"#"} TOUR {laps} - {n}/2 {10*"#"}")
+    print("")
     time.sleep(1)
+    print(f"{10*"#"} TOUR {laps} - {n}/2 {10*"#"}")
 
 # Creation de l'ennemis
 def create_enemie():
@@ -141,8 +148,8 @@ def team_player_attack(team, enemies):
     action_damage = []
     # Pour joueur dans l'équipe
     for character in team:
-            # Vérifier qu'il reste des ennemis vivants
-        if not team_alive(enemies):
+        # Vérifier qu'il reste des ennemis vivants
+        if not is_team_alive(enemies):
             break
         # Faire l'attaque
         action = character_attack(character, enemies)
@@ -159,7 +166,7 @@ def character_attack(character, enemies):
         return None
     # Creation de la liste des personne vivant
     living_enemies = [enemy for enemy in enemies if enemy["PV"] > 0]
-    # Si plus d'enemi
+    # Si tous les personnages morts
     if not living_enemies:
         return None
     # Choisir un joueur au hasard parmis ce qui sont en vis
@@ -170,12 +177,8 @@ def character_attack(character, enemies):
             
 # sup à n
 def sup_n(n):
-    # Si pv supérieur à 0
-    if n > 0:
-        # retourne True
-        return True
-    # Retourne False
-    return False
+    # retourne si n supérieur à 0
+    return n > 0
     
 # Enlever dégat
 def attack(character, enemie):
@@ -205,30 +208,36 @@ def take_damage(enemie, damage):
 def show_ranking():
     # Chercher la liste avec pseudo + résultat
     list_score_result = utils.recup_score_result()
+    # Liste des meilleurs scores
+    best_score = []
     # Pour index 10 fois
     for i in range(10):
         # Chercher le plus au score dans la liste
         index_result = look_for_best_score_result(list_score_result)
-        # Afficher le plus au score index+1 + pseudo + score
-        show_max_score(list_score_result, index_result, i)
+        # Si pas de résultat
+        if index_result == None:
+            # Quitter la boucle
+            break
+        # Ajouter le meilleur score à la liste
+        best_score.append({"name" : list_score_result[index_result]["name"], "score": list_score_result[index_result]["score"][0]})
         # Supp le meilleur score
         del list_score_result[index_result]["score"][0]
-        
-def show_max_score(list_score_result, index_result,i):
-    print(f"{i+1}- {list_score_result[index_result]["name"]} --- {list_score_result[index_result]["score"][0]} ")
+    # Afficher le classment
+    show_options(f"{text["name"]} --> {text["score"]}" for text in best_score)
     
 # Chercher le plus au score dans la liste
 def look_for_best_score_result(list_score_result):
     # Creation du dic avec pseudo + score
-    index_pseudo = 0
+    index_pseudo = None
     # Pour dic dans la liste
-    for i in range(1,len(list_score_result)):   
+    for i, user in enumerate(list_score_result):   
         # Si liste vide passer
-        if list_score_result[i]["score"] == []:
+        if not user["score"]:
             continue  
-        # Si max de la liste supérieur à score
-        if list_score_result[i]["score"][0] > list_score_result[index_pseudo]["score"][0] :
+        # Si pas encore de max ou max de la liste supérieur à score
+        if index_pseudo is None or user["score"][0] > list_score_result[index_pseudo]["score"][0]:
             # Remplacer le pseudo et le score
             index_pseudo =  i
+    # Retourner l'index du meilleur score
     return index_pseudo
         

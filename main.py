@@ -18,23 +18,18 @@ def ask_pseudo():
         # Demander un pseudo
         pseudo = input("Quel est ton pseudo : ")
         # Si le pseudo est utilisé
-        if pseudo_use(pseudo):
+        if not is_pseudo_use(pseudo):
             # Ajouter pseudo à la bdd
             utils.add_pseudo_bdd(pseudo)
             # Retourne pseudo
             return pseudo
         # Affichage erreur
         print("Pseudo déjà utilisé")
-            
-        
+              
 # pseudo utilisé
-def pseudo_use(pseudo):
+def is_pseudo_use(pseudo):
     # Si pseudo est dans liste pseudo
-    if pseudo in utils.list_users():
-        # Retourne Faux
-        return False
-    # Retourne True
-    return True      
+    return pseudo in utils.list_users()
 
 # Diriger en fonction du choix
 def redirection_choice(choice, pseudo):
@@ -51,5 +46,5 @@ def redirection_choice(choice, pseudo):
         # Quitter le code
         sys.exit()
         
-menu()
-
+if __name__ == "__main__":
+    menu()
