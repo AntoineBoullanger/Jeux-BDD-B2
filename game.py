@@ -21,7 +21,6 @@ def start_game(pseudo_player):
     # Enregistrer le résultat dans la bdd
     utils.save_result(pseudo_player, number_round_play)
     
-
 # Creer l'équipe
 def create_my_team():
     # Création de la liste équipe
@@ -30,17 +29,21 @@ def create_my_team():
     list_characters_on_bdd = utils.list_characters_on_bdd("characters")
     # Tant que taille de l'équipe est pas pleine
     while len(list_team_of_characters) < MAX_CHARACTERS:
-        # Afficher l'équipe
-        create_list_of_option(create_list_text(list_team_of_characters))
         # Demander un personnage
-        character = ask_valid_choice(create_list_text(list_characters_on_bdd))
-        # Ajouter le personnage à l'equipe
-        list_team_of_characters.append(list_characters_on_bdd[character-1])
-        # Supp le personnage de la liste de choix
-        del list_characters_on_bdd[character-1]
+        character = ask_character(list_team_of_characters,list_characters_on_bdd)
+        # Ajouter à l'équipe
+        list_team_of_characters.append(character)
     # Retourne l'équipe
     return list_team_of_characters
 
+def ask_character(list_team_of_characters,list_characters_on_bdd):
+    # Afficher l'équipe
+    create_list_of_option(create_list_text(list_team_of_characters))
+    # Demander un personnage
+    character = ask_valid_choice(create_list_text(list_characters_on_bdd))
+    # Supp le personnage de la liste de choix
+    return list_characters_on_bdd.pop(character-1)
+    
 # Liste de texte
 def create_list_text(liste_character):
     # creation de liste de texte
@@ -122,61 +125,99 @@ def start_round(team_of_characters, team_of_enemies, number_round_play):
         # Incrémenter le nombre de round
         number_of_laps += 1
         # Attaque du Joueur 
-        player_attack(team_of_characters, team_of_enemies,number_round_play, number_of_laps, 1, team_of_characters, team_of_enemies)
+        player_attack(team_of_characters, team_of_enemies,create_battle_data(number_round_play, number_of_laps, 1,team_of_characters, team_of_enemies))
         # Si pas equipe vivant (ennemis)
         if not is_team_alive(team_of_enemies):
             # break
             break
         # Attaque Ennemis
-        player_attack(team_of_enemies,team_of_characters,number_round_play, number_of_laps, 2, team_of_characters, team_of_enemies)
-        
-def player_attack(team_attack,team_deffense,number_round_play,number_of_laps, one_or_two, team_of_characters,team_of_enemies ):
+        player_attack(team_of_enemies,team_of_characters,create_battle_data(number_round_play, number_of_laps, 2,team_of_characters, team_of_enemies))
+
+def create_battle_data(round_number, laps, turn, characters, enemies):
+    return {
+        "round": round_number,
+        "laps": laps,
+        "unOudeux": turn,
+        "characterTeam": characters,
+        "enemieTeam": enemies
+    }
+
+
+def player_attack(team_attack,team_deffense,dico_text ):
     # Attaque de l'equipe
     action_damage = team_player_attack(team_attack, team_deffense)
+    # Ajouter les damages au text
+    dico_text["damage"] = action_damage
     # Affichier de l'execution de team_player_attack
-    time.sleep(1)
-    os.system("cls")
-    show_array(action_damage,team_of_characters, team_of_enemies,number_round_play,number_of_laps,one_or_two)
+    show_array(dico_text)
     
-def show_array(action_damage, team_of_characters, team_of_enemies,number_round_play, number_of_laps, one_or_two):
+def show_array(dico_text):
+    side_text()
     console = Console()
-    # Creation du tableau
-    array = Table(title=f"MANCHE {number_round_play} --- Tour {number_of_laps} - {one_or_two}/2",)
-    # Ajouter les colonne
-    add_column_on_array(array,["Allié","Dégât","Enemis"])
-    # Pour le nombre max de personnage
-    for index in range(MAX_CHARACTERS):
-        # Récupérer le texte pour les allié
-        text_allied = f"{team_of_characters[index]["name"]} - {team_of_characters[index]["PV"]} PV"
-        # Récupérer le texte du combat
-        text_damage = recup_element(action_damage, index)
-        # Récupérer le texte pour les enemies
-        text_ennemies = recup_element_a(team_of_enemies,index)
-        # Ajouter la ligne
-        array.add_row(text_allied,text_damage, text_ennemies)
+    # Création du tableau
+    array = create_array(dico_text)
+    # Création du corp du tableau
+    create_body_of_array(array, dico_text)
     console.print(array)
 
-def add_column_on_array(array, liste):
-    # Pour chaque colonne dans la liste
-    for column in liste:
-        # Ajouter la colonne
-        array.add_column(column)
+def side_text():
+    time.sleep(1)
+    os.system("cls")
 
-def recup_element(action_damage, i):
-    # Si assez d'élément dans action_damage
-    if i < len(action_damage):
-        # return l'action
-        return f"{action_damage[i]["allie"]} attaque {action_damage[i]["enemy"]} --- {action_damage[i]["damage"]} dégats"
-    # return text vide
-    return ""
-    
-def recup_element_a(enemies, i):
-    # Si assez d'élément dans action_damage
-    if i < len(enemies):
-        # return l'action
-        return f"{enemies[i]["name"]} - {enemies[i]["PV"]} PV"
-    # return text vide
-    return ""
+def create_array(dico_text):
+    return Table(
+        title=f"[bold]MANCHE {dico_text['round']} --- Tour {dico_text['laps']} - {dico_text['unOudeux']}/2[/bold]",
+        expand=True,
+        padding=(1,1)
+        
+    )
+
+def create_body_of_array(array, dico_text):
+    # Création des colonnes
+    create_column_of_array(array,["Allié", "Dégâts", "Ennemis"])
+    # Création des ligne
+    create_row_of_array(array,dico_text)
+        
+def create_column_of_array(array,columns):
+    for column in columns:
+        array.add_column(column, justify="center")
+        
+def create_row_of_array(array, dico_text):
+    for index in range(MAX_CHARACTERS):
+        # recupération du text
+        text = recup_text(dico_text, index)
+        # Ajouter les lignes
+        array.add_row(f"[bold green]{text[0]}[/bold green]",text[1],f"[bold red]{text[2]}[/bold red]")
+        
+def recup_text(dico_text,index):
+    # Récupérer le texte pour les allié
+    text_allied = recup_character(dico_text["characterTeam"], index)
+    # Récupérer le texte du combat
+    text_damage = recup_element(dico_text["damage"], index)
+    # Récupérer le texte pour les enemies
+    text_ennemies = recup_character(dico_text["enemieTeam"],index)
+    # Retourne les textes
+    return text_allied,text_damage,text_ennemies
+
+def recup_character(team,index):
+    # Si assez de personne dans l'équipe
+    if index >= len(team):
+        # retourne text vide
+        return ""
+    # Récupération du personnage
+    personnage = team[index]
+    # Retourne le texte
+    return f"{personnage['name']} - {personnage['PV']} PV"
+
+def recup_element(damage, index):
+    # Si assez de personne dans l'équipe
+    if index >= len(damage):
+        # retourne text vide
+        return ""
+    # Récupération de l'attaque
+    damage = damage[index]
+    # retourne le texte
+    return f"{damage['character']} inflige {damage['damage']} dégâts à {damage['enemie']}"
     
 def show_text_fight(liste):
     for texte in liste:
@@ -235,7 +276,7 @@ def attack_person(person_atatck, person_defense):
     # Compter les dégats
     damage = count_damage(person_atatck, person_defense)
     # Mettre les dégat
-    take_damage(person_atatck, damage)
+    take_damage(person_defense, damage)
     # Retourner le message
     return create_dic_damage(person_atatck, damage, person_defense)
     
@@ -248,7 +289,7 @@ def count_damage(person_attack, person_defense):
     return damage
     
 def create_dic_damage(person_attack, damage, person_defense):
-    return {"allie": person_attack["name"],"damage": damage,"enemy": person_defense["name"]}
+    return {"character": person_attack["name"],"damage": damage,"enemie": person_defense["name"]}
 
 def take_damage(person_defense, damage):
     # Si sup à pv - deg
@@ -292,7 +333,7 @@ def show_classement(best_score):
     # afficher le texte
     show_text_fight(list_classement)
     
-def show_text_fight(list_classement):
+def show_text_fight(list_classement):   
     for text in list_classement:
         print(text)
     
@@ -322,5 +363,3 @@ def is_number_max(index_pseudo, user, list_score_result):
         # retourne Faux
         return True
     return False
-    
-start_game("azef")
