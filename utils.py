@@ -14,9 +14,9 @@ def add_pseudo_bdd(pseudo):
     db["users"].insert_one({"name" : pseudo, "score" : []})
     
 # Liste des personnage
-def list_characters(name):
+def list_characters_on_bdd(name_of_table):
     # Retourne liste des personnage
-    return list(db[name].find({}, { "_id": 0}))
+    return list(db[name_of_table].find({}, { "_id": 0}))
 
   
 # Enregistrer le résultat dans la bdd
