@@ -17,19 +17,26 @@ def ask_pseudo_to_player():
     while True:
         # Demander un pseudo
         pseudo_player = input("Quel est ton pseudo : ")
-        # Si le pseudo est utilisé
-        if not is_pseudo_already_use(pseudo_player):
-            # Ajouter pseudo à la bdd
-            utils.add_pseudo_bdd(pseudo_player)
+        # Si le pseudo respect les conditions
+        if is_pseudo_respect_condition(pseudo_player):
             # Retourne pseudo
             return pseudo_player
         # Affichage erreur
-        print("Pseudo déjà utilisé")
+        print("Pseudo doit être entre 3 et 10 caractères")
               
 # pseudo utilisé
-def is_pseudo_already_use(pseudo_player):
-    # Si pseudo est dans liste pseudo
-    return pseudo_player in utils.list_users()
+def is_pseudo_respect_condition(pseudo_player):
+    # Si pseudo respect la longueur
+    if not game.is_between_min_max(3,len(pseudo_player),10):
+            # retourne faux
+            return False
+    # si pseudo utilisé
+    if not pseudo_player in utils.list_users():
+        print("Bienvenue sur le jeu")
+        # ajouter le pseudo
+        utils.add_pseudo_bdd(pseudo_player)
+    return True
+    
 
 # Diriger en fonction du choix
 def redirection_choice(choice, pseudo):

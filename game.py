@@ -10,17 +10,21 @@ def start_game(pseudo_player):
     number_round_play = 0
     # Creer l'équipe
     team_of_characters = create_my_team()
+    # Lancer la manche
+    start_round(pseudo_player,team_of_characters, number_round_play)
+    
+def start_round(pseudo_player, team_of_characters,number_round_play):
     # Tant equipe vivant
     while is_team_alive(team_of_characters):
         # Incrémentation de 1 la variable manche
         number_round_play += 1
         # Creer l'enemi
         team_of_enemie = [create_enemie_team()]
-        # Lancer la manche
-        start_round(team_of_characters, team_of_enemie, number_round_play)
+        # Lancer l'attqaue de la manche
+        start_round_attack(team_of_characters, team_of_enemie, number_round_play)
     # Enregistrer le résultat dans la bdd
     utils.save_result(pseudo_player, number_round_play)
-    
+        
 # Creer l'équipe
 def create_my_team():
     # Création de la liste équipe
@@ -72,7 +76,7 @@ def ask_valid_choice(list_of_option):
         # Demander un choix
         choice_ask =  ask_choice(list_of_option)
         # Si choix est valide parmi les options
-        if is_choice_valid(choice_ask[0], len(list_of_option)):
+        if is_choice_valid(choice_ask[0],1, len(list_of_option)):
             # Retourne le nombre
             return int(choice_ask[0])
         # Afficher message erreur
@@ -85,7 +89,7 @@ def ask_choice(list_of_option):
         ).ask()
         
 # Choix valide parmis les options
-def is_choice_valid(choice, maximum):
+def is_choice_valid(choice,minimum, maximum):
     # Si le choix n'est pas un nombre
     if not choice.isdigit():
         # Retourne Faux
@@ -93,12 +97,16 @@ def is_choice_valid(choice, maximum):
     # Convertir en entier
     choice = int(choice)
     # Si l'entier n'est compris entre le min et max
-    if  not(1 <=  choice <= maximum):
+    if  not is_between_min_max(minimum,choice,maximum):
         # Retourne Faux
         return False
     # Retourne Vrai
     return True
-            
+
+# Entier compris entre  minimum et maximum
+def is_between_min_max(minimum,choice,maximum):
+    return minimum <=  choice <= maximum
+
 # équipe vivant ?
 def is_team_alive(team):
     # Pour personnage dans equipe
@@ -118,7 +126,7 @@ def create_enemie_team():
     return random.choice(list_enemies_on_bdd)
 
 # Lancer la manche
-def start_round(team_of_characters, team_of_enemies, number_round_play):
+def start_round_attack(team_of_characters, team_of_enemies, number_round_play):
     number_of_laps = 0
     # Tant que equipe vivant
     while is_team_alive(team_of_characters):
@@ -151,6 +159,10 @@ def player_attack(team_attack,team_deffense,dico_text ):
     # Affichier de l'execution de team_player_attack
     show_array(dico_text)
     
+#################################
+########### Affichage ###########
+#################################
+    
 def show_array(dico_text):
     side_text()
     console = Console()
@@ -161,7 +173,7 @@ def show_array(dico_text):
     console.print(array)
 
 def side_text():
-    time.sleep(1)
+    time.sleep(0.8)
     os.system("cls")
 
 def create_array(dico_text):
@@ -223,6 +235,10 @@ def show_text_fight(liste):
     for texte in liste:
         print(texte)
     print("")
+
+######################################
+########## Mecanique du jeu ##########
+######################################
 
 # Attaque Joueur
 def team_player_attack(team_attack, team_defense):
@@ -301,6 +317,10 @@ def take_damage(person_defense, damage):
         # pv = 0
         person_defense["PV"] = 0
 
+################################
+########## Classement ##########
+################################
+
 # Voir le classement
 def show_top_ranking():
     # Chercher la liste avec pseudo + résultat
@@ -333,9 +353,12 @@ def show_classement(best_score):
     # afficher le texte
     show_text_fight(list_classement)
     
-def show_text_fight(list_classement):   
+def show_text_fight(list_classement):
+    print("")
+    print("CLASSEMENT")
     for text in list_classement:
         print(text)
+    print("")
     
 # Chercher le plus au score dans la liste
 def look_for_best_score_result(list_score_result):
