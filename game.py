@@ -1,33 +1,27 @@
-import utils, random, time, questionary
+import utils, random, time, questionary, os
+from rich.console import Console
+from rich.table import Table
 
 MAX_CHARACTERS = 3
 
 # Lancer la partie
 def game_start(pseudo):
     # Creation variable manche
-    round = 0
+    n_round = 0
     # Creer l'équipe
     team = create_team()
     # Tant equipe vivant
     while is_team_alive(team):
         # Incrémentation de 1 la variable manche
-        round += 1
-        # Affichage Manche
-        show_round(round)
+        n_round += 1
         # Creer l'enemi
         enemie = [create_enemie()]
         # Lancer la manche
-        start_round(team, enemie)
-    # Afficher le résultat
-    show_round(round)
+        start_round(team, enemie, n_round)
     # Enregistrer le résultat dans la bdd
-    utils.save_result(pseudo, round)
+    # utils.save_result(pseudo, round)
     
-def show_round(round):
-    print("")
-    print("-"*30)
-    print(f"Manche {round}")
-    print("-"*30)
+
 
 # Creer l'équipe
 def create_team():
@@ -58,7 +52,6 @@ def create_list_text(liste_character):
         list_text.append(f"{character["name"]} --- {character["ATK"]} ATK -- {character["DEF"]} DEF - {character["PV"]} PV")
     # Retourne liste text
     return list_text
-
 
 # Afficher les options
 def show_options(options):
@@ -116,42 +109,73 @@ def is_team_alive(team):
     return False
 
 # Lancer la manche
-def start_round(team, enemies):
+def start_round(team, enemies, n_round):
     laps= 0
     # Tant que equipe vivant
     while is_team_alive(team):
         # Incrémenter le nombre de round
         laps += 1
-        # Attaque du Joueur team
-        action_damage = team_player_attack(team, enemies)
-        # Affichier de l'execution de team_player_attack
-        show_text(action_damage,team,laps,1)
+        # Attaque du Joueur 
+        player_attack(team, enemies,n_round, laps, 1, team, enemies)
         # Si pas equipe vivant (ennemis)
         if not is_team_alive(enemies):
             # break
             break
         # Attaque Ennemis
-        action_damage = team_player_attack(enemies,team)
-        # Affichier de l'execution de team_player_attack 
-        show_text(action_damage,enemies,laps,2)
+        player_attack(enemies, team,n_round, laps, 2, team, enemies)
         
-def show_text(action_damage, team,laps, n):
-    # Afficher le round
-    show_laps(laps, n)
-    # Afficher l'équipe
-    show_text_fight([f"{character["name"]} --- {character["PV"]} PV" for character in team])
-    # Afficher les dégats
-    show_text_fight(action_damage)
+def player_attack(team,enemies,n_round,laps, n, team_show, enemies_show):
+    # Attaque de l'equipe
+    action_damage = team_player_attack(team, enemies)
+    # Affichier de l'execution de team_player_attack
+    time.sleep(1)
+    os.system("cls")
+    show_array(action_damage,team_show, enemies_show,n_round,laps,n)
+    
+def show_array(action_damage, team, enemies,n_round, laps, n):
+    console = Console()
+    # Creation du tableau
+    table = Table(title=f"MANCHE {n_round} --- Tour {laps} - {n}/2",)
+    # Ajouter les colonne
+    add_column(table,["Allié","Dégât","Enemis"])
+    # Pour le nombre max de personnage
+    for i in range(MAX_CHARACTERS):
+        # Récupérer le texte pour les allié
+        element_allie = f"{team[i]["name"]} - {team[i]["PV"]} PV"
+        # Récupérer le texte du combat
+        element_damage = recup_element(action_damage, i)
+        # Récupérer le texte pour les enemies
+        element_ennemies = recup_element_a(enemies,i)
+        # Ajouter la ligne
+        table.add_row(element_allie,element_damage,element_ennemies)
+    console.print(table)
+
+def add_column(table, liste):
+    # Pour chaque colonne dans la liste
+    for column in liste:
+        # Ajouter la colonne
+        table.add_column(column)
+
+def recup_element(action_damage, i):
+    # Si assez d'élément dans action_damage
+    if i < len(action_damage):
+        # return l'action
+        return f"{action_damage[i]["allie"]} attaque {action_damage[i]["enemy"]} --- {action_damage[i]["damage"]} dégats"
+    # return text vide
+    return ""
+    
+def recup_element_a(enemies, i):
+    # Si assez d'élément dans action_damage
+    if i < len(enemies):
+        # return l'action
+        return f"{enemies[i]["name"]} - {enemies[i]["PV"]} PV"
+    # return text vide
+    return ""
     
 def show_text_fight(liste):
     for texte in liste:
         print(texte)
     print("")
-
-def show_laps(laps,n):
-    print("")
-    time.sleep(1)
-    print(f"{10*"#"} TOUR {laps} - {n}/2 {10*"#"}")
 
 # Creation de l'ennemis
 def create_enemie():
@@ -184,14 +208,18 @@ def character_attack(character, enemies):
         return None
     # Creation de la liste des personne vivant
     living_enemies = create_character_living(enemies)
-    # Si tous les personnages morts
-    if living_enemies == []:
-        return None
     # Choisir un joueur au hasard parmis ce qui sont en vis
     enemie = random.choice(living_enemies)
     # Enlever dégat 
     action_attack = attack(character, enemie)        
     return action_attack
+    
+def choose_enemie_random(living_enemies):
+    # Si tous les personnages morts
+    if living_enemies == []:
+        return None
+    # Retourne un joueur au hasard
+    return random.choice(living_enemies)
 
 def create_character_living(enemies):
     # Creation de la liste des perso vivant
@@ -228,7 +256,7 @@ def count_damage(character, enemie):
     return damage
     
 def show_damage(character, damage, enemie):
-    return f"{character["name"]} inflige {damage} dégats à {enemie["name"] }"
+    return {"allie": character["name"],"damage": damage,"enemy": enemie["name"]}
 
 def take_damage(enemie, damage):
     # Si sup à pv - deg
@@ -245,9 +273,15 @@ def show_ranking():
     # Chercher la liste avec pseudo + résultat
     list_score_result = utils.recup_score_result()
     # Liste des meilleurs scores
+    best_score = list_of_best(list_score_result, 10)
+    # Afficher le classment
+    show_classement(best_score)
+    
+def list_of_best(list_score_result, max_rank):
+    # creation liste des meilleur score
     best_score = []
     # Pour index 10 fois
-    for i in range(10):
+    for i in range(max_rank):
         # Chercher le plus au score dans la liste
         index_result = look_for_best_score_result(list_score_result)
         # Si pas de résultat
@@ -258,8 +292,7 @@ def show_ranking():
         best_score.append({"name" : list_score_result[index_result]["name"], "score": list_score_result[index_result]["score"][0]})
         # Supp le meilleur score
         del list_score_result[index_result]["score"][0]
-    # Afficher le classment
-    show_classement(best_score)
+    return best_score
     
 def show_classement(best_score):
     # recup le texte
@@ -293,3 +326,5 @@ def is_number_max(index_pseudo, user, list_score_result):
         # retourne Faux
         return True
     return False
+    
+game_start("azef")
