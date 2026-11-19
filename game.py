@@ -1,4 +1,4 @@
-import utils, random, time
+import utils, random, time, questionary
 
 MAX_CHARACTERS = 3
 
@@ -38,38 +38,56 @@ def create_team():
     # Tant que taille de l'équipe est pas pleine
     while len(list_team) < MAX_CHARACTERS:
         # Afficher l'équipe
-        show_options([f"{character["name"]} --- {character["ATK"]} - {character["DEF"]} - {character["PV"]} PV" for character in list_team])
+        show_options(create_list_text(list_team))
         # Demander un personnage
-        character = ask_valid_choice([f"{character["name"]} --- {character["ATK"]} ATK -- {character["DEF"]} DEF - {character["PV"]} PV"for character in list_characters])
+        character = ask_valid_choice(create_list_text(list_characters))
         # Ajouter le personnage à l'equipe
         list_team.append(list_characters[character-1])
         # Supp le personnage de la liste de choix
         del list_characters[character-1]
     # Retourne l'équipe
-    return list_team    
+    return list_team
+
+# Liste de texte
+def create_list_text(liste_character):
+    # creation de liste de texte
+    list_text = []
+    # Pour personnage dans liste
+    for character in liste_character:
+        # Ajouter le texte à la liste
+        list_text.append(f"{character["name"]} --- {character["ATK"]} ATK -- {character["DEF"]} DEF - {character["PV"]} PV")
+    # Retourne liste text
+    return list_text
+
 
 # Afficher les options
 def show_options(options):
-    print("")
+    # Creation la liste des options
+    option_list = []
     # Pour index, option in enumerees options
     for index, option in enumerate(options, start=1):
-        # Afficher index + option
-        print(f"{index}- {option}")
+        # Ajouter à la liste index + option
+        option_list.append(f"{index}- {option}")
+    return option_list
 
 # Demander un personnage
 def ask_valid_choice(list_of_option):
     # Tant que vrai
     while True:
-        # Afficher les options
-        show_options( list_of_option)
         # Demander un choix
-        choice = input("Qu'est ce que tu veux faire ? (1,2 ou 3) ")
+        choice =  ask_choice(list_of_option)
         # Si choix est valide parmi les options
-        if is_choice_valid(choice, len(list_of_option)):
+        if is_choice_valid(choice[0], len(list_of_option)):
             # Retourne le nombre
-            return int(choice)
+            return int(choice[0])
         # Afficher message erreur
         print("Tu as fais une erreur recommence")
+        
+def ask_choice(list_of_option):
+    return questionary.select(
+            "Choisis une proposition :(1,2, ect) ",
+            choices=show_options(list_of_option)
+        ).ask()
         
 # Choix valide parmis les options
 def is_choice_valid(choice, maximum):
@@ -165,15 +183,27 @@ def character_attack(character, enemies):
     if not sup_n(character["PV"]):
         return None
     # Creation de la liste des personne vivant
-    living_enemies = [enemy for enemy in enemies if enemy["PV"] > 0]
+    living_enemies = create_character_living(enemies)
     # Si tous les personnages morts
-    if not living_enemies:
+    if living_enemies == []:
         return None
     # Choisir un joueur au hasard parmis ce qui sont en vis
     enemie = random.choice(living_enemies)
     # Enlever dégat 
     action_attack = attack(character, enemie)        
     return action_attack
+
+def create_character_living(enemies):
+    # Creation de la liste des perso vivant
+    list_alive_character = []
+    # Pour enemie dans enemies
+    for enemie in enemies:
+        # Si vivant
+        if enemie["PV"] > 0:
+            # Ajouter à la liste
+            list_alive_character.append(enemie)
+    # retourne la liste
+    return list_alive_character
             
 # sup à n
 def sup_n(n):
@@ -183,13 +213,19 @@ def sup_n(n):
 # Enlever dégat
 def attack(character, enemie):
     # Compter les dégats
-    damage = character["ATK"] - enemie["DEF"]
-    # Si pas inférieur à 0
-    if damage <= 0:
-        damage = 0
+    damage = count_damage(character, enemie)
+    # Mettre les dégat
     take_damage(enemie, damage)
     # Retourner le message
     return show_damage(character, damage, enemie)
+    
+def count_damage(character, enemie):
+    # Calcul des dégats
+    damage = character["ATK"] - enemie["DEF"]
+    # Si pas inférieur à 0
+    if damage <= 0:
+        return 1
+    return damage
     
 def show_damage(character, damage, enemie):
     return f"{character["name"]} inflige {damage} dégats à {enemie["name"] }"
@@ -223,7 +259,13 @@ def show_ranking():
         # Supp le meilleur score
         del list_score_result[index_result]["score"][0]
     # Afficher le classment
-    show_options(f"{text["name"]} --> {text["score"]}" for text in best_score)
+    show_classement(best_score)
+    
+def show_classement(best_score):
+    # recup le texte
+    list_classement = show_options(f"{text["name"]} --> {text["score"]}" for text in best_score)
+    # afficher le texte
+    show_text_fight(list_classement)
     
 # Chercher le plus au score dans la liste
 def look_for_best_score_result(list_score_result):
@@ -231,13 +273,23 @@ def look_for_best_score_result(list_score_result):
     index_pseudo = None
     # Pour dic dans la liste
     for i, user in enumerate(list_score_result):   
-        # Si liste vide passer
+        # Si aucun score
         if not user["score"]:
             continue  
-        # Si pas encore de max ou max de la liste supérieur à score
-        if index_pseudo is None or user["score"][0] > list_score_result[index_pseudo]["score"][0]:
+        # Si le nombre est max
+        if is_number_max(index_pseudo, user, list_score_result):
             # Remplacer le pseudo et le score
             index_pseudo =  i
     # Retourner l'index du meilleur score
     return index_pseudo
-        
+
+def is_number_max(index_pseudo, user, list_score_result):
+    # Si pas de score max
+    if index_pseudo is None:
+        # return False
+        return True
+    # Si score est supérieur à l'actuel
+    if user["score"][0] > list_score_result[index_pseudo]["score"][0]:
+        # retourne Faux
+        return True
+    return False
